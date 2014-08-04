@@ -8,7 +8,7 @@ GPIO_InitTypeDef  GPIO_USART_InitStruct;
 USART_InitTypeDef  USART_InitStruct;
 
 void Delay(__IO uint32_t nCount);
-void UART5_Enable_Tx(void);
+void UART5_Enable_Rx(void);
 
 int main(void)
 {
@@ -69,15 +69,14 @@ void UART5_Enable_Tx(void)
 {
     /* Enable Clocks */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
 
     /* Set up GPIO for alternate function */
-    GPIO_PinAFConfig(GPIOC,GPIO_PinSource12,GPIO_AF_UART5);
+    GPIO_PinAFConfig(GPIOD,GPIO_PinSource2,GPIO_AF_UART5);
 
     /* Configure GPIO to transmit */
     GPIO_USART_InitStruct.GPIO_Mode = GPIO_Mode_AF;
     GPIO_USART_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    GPIO_USART_InitStruct.GPIO_OType = GPIO_OType_OD;
     GPIO_USART_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
     GPIO_USART_InitStruct.GPIO_Pin = GPIO_Pin_12;
     GPIO_Init(GPIOC, &GPIO_USART_InitStruct);

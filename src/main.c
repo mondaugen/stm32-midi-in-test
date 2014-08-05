@@ -1,6 +1,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include <stdlib.h> 
-#include "stm32f4xx_conf.h" 
+#include "stm32f4xx.h" 
+#include "leds.h" 
 
 #define MIDI_BAUD_RATE 31250
 
@@ -18,39 +19,16 @@ int main(void)
        To reconfigure the default setting of SystemInit() function, refer to
         system_stm32f4xx.c file
      */
+
+    /* Enable LEDs so we can toggle them */
+    LEDs_Init();
     
     /* Enable USART For Tx */
-    UART5_Enable_Tx();
+    UART5_Enable_Rx();
 
     /* we have to do this */
 
-  while (1)
-  {
-      uint8_t note = (uint8_t)(127 * drand48());
-      uint8_t vel  = (uint8_t)(127 * drand48());
-      uint32_t delay = (uint32_t)((0xffffff) * drand48()) / 100;
-      /* Send note on channel 1 */
-      while(!(UART5->SR & USART_SR_TC));
-      USART_SendData(UART5, 0x99);
-      while(!(UART5->SR & USART_SR_TC));
-      USART_SendData(UART5, note);
-      while(!(UART5->SR & USART_SR_TC));
-      USART_SendData(UART5, vel);
-    
-      /* Insert delay */
-      Delay(delay);
-
-      /* Send note off */
-      while(!(UART5->SR & USART_SR_TC));
-      USART_SendData(UART5, 0x89);
-      while(!(UART5->SR & USART_SR_TC));
-      USART_SendData(UART5, note);
-      while(!(UART5->SR & USART_SR_TC));
-      USART_SendData(UART5, 0);
-
-      /* Insert delay */
-      Delay(delay);
-  }
+  while (1);
 }
 
 /**
@@ -65,7 +43,7 @@ void Delay(__IO uint32_t nCount)
   }
 }
 
-void UART5_Enable_Tx(void)
+void UART5_Enable_Rx(void)
 {
     /* Enable Clocks */
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
@@ -78,17 +56,21 @@ void UART5_Enable_Tx(void)
     GPIO_USART_InitStruct.GPIO_Mode = GPIO_Mode_AF;
     GPIO_USART_InitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
     GPIO_USART_InitStruct.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_USART_InitStruct.GPIO_Pin = GPIO_Pin_12;
-    GPIO_Init(GPIOC, &GPIO_USART_InitStruct);
+    GPIO_USART_InitStruct.GPIO_Pin = GPIO_Pin_2;
+    GPIO_Init(GPIOD, &GPIO_USART_InitStruct);
 
     /* Configure USART */
     USART_InitStruct.USART_BaudRate = MIDI_BAUD_RATE;
     USART_InitStruct.USART_WordLength = USART_WordLength_8b;
     USART_InitStruct.USART_StopBits = USART_StopBits_1;
     USART_InitStruct.USART_Parity = USART_Parity_No;
-    USART_InitStruct.USART_Mode = USART_Mode_Tx;
+    USART_InitStruct.USART_Mode = USART_Mode_Rx;
     USART_InitStruct.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
     USART_Init(UART5, &USART_InitStruct);
+
+    /* Enable USART Interrupts */
+    NVIC_EnableIRQ(UART5_IRQn);
+    USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);
 
     /* Enable UART */
     USART_Cmd(UART5, ENABLE);

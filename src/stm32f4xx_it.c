@@ -23,6 +23,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
+#include "leds.h"
 
 /** @addtogroup STM32F4_Discovery_Peripheral_Examples
   * @{
@@ -139,6 +140,22 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
 }
+
+/**
+ * @brief This function handles UART5 Handler.
+ * @param None
+ * @retval
+ */
+void UART5_IRQHandler(void)
+{
+    if (USART_GetITStatus(UART5, USART_IT_RXNE)) {
+        /* Do stuff */
+        LEDs_Toggle();
+        USART_ClearITPendingBit(UART5, USART_IT_RXNE);
+    }
+    NVIC_ClearPendingIRQ(UART5_IRQn);
+}
+
 
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */

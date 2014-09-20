@@ -95,7 +95,7 @@ CFLAGS += $(foreach def,$(DEFS),-D$(def))
 
 LDSCRIPT = STM32F429ZI_FLASH.ld
 LDFLAGS = -T$(LDSCRIPT) -Xlinker
-ifeq ($(DEBUG_BUILD),1)
+ifeq ($(DEBUG_BUILD),0)
 	LDFLAGS += --gc-sections
 endif
 
